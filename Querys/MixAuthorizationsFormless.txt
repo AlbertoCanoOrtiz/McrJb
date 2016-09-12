@@ -1,0 +1,37 @@
+use 
+	mediaccess
+select 
+	a.CodProducto
+	,EMP.nombrefiscal
+	,PY.nombrefiscal
+	,gc.codafiliado
+	,a.nombres + ' ' + a.apellidopaterno + ' ' +a.apellidomaterno
+	,PR.PARENTESCO
+	,Es.Estado
+	,gc.autorizacion
+	,gc.fecha
+	,tc.tipocuenta
+	,ep.especialidad
+	,GCD.coddiagnostico
+	,dia.diagnostico
+	,round( isnull(gcd.preciounitario,0)* (isnull(gcd.cantidad,0))*1.09,2) as unitario --- cargo del 9% monto
+	,round((CASE WHEN gcd.total<0 THEN '0' 
+			when gcd.total IS NULL  then '0'
+			ELSE GCD.TOTAL END)*1.09,2) as total       
+	,a.poliza
+from 
+	saMediaccess.GastoCoberturas gc
+	inner join saMediaccess.gastocoberturasdetalle gcd on gc.idlista=gcd.idlista
+	inner join iss..afiliado a on gc.codempresa=a.codempresa and gc.codafiliado collate Modern_Spanish_CI_AS=a.codafiliado and gc.correlativo=a.correlativo
+	left join iss..ubicacionafiliado ua on a.codafiliado collate Modern_Spanish_CI_AS= ua.codafiliado and  a.correlativo = ua.correlativo and a.codempresa = ua.codempresa
+	left join iss..empresa emp on a.codempresa = emp.codempresa
+	left join iss.saMediaccess.empresasPyme py on a.codpymecolectivo = py.codpyme and a.codempresa=py.codempresa
+	left join diagnostico dia on GCD.coddiagnostico = dia.coddiagnostico
+	left JOIN PARENTESCO PR ON PR.CODPARENTESCO=A.CODPARENTESCO
+	left join tipocuenta tc on gcd.codtipocuenta = tc.codtipocuenta
+	left join especialidad ep on gcd.codespecialidad = ep.codespecialidad and ep.codespecialidad <> '10000'
+	left join iss..estado es on ua.codestado = es.codestado
+	left join iss..poblacion p on ua.codestado = p.codestado and ua.codpoblacion = p.codpoblacion
+where
+	A.CODEMPRESA in('384')
+	and gc.fecha between '2015/12/16' and GETDATE()

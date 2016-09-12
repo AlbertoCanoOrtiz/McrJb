@@ -1,0 +1,46 @@
+USE 
+	MAEDICUSCPT 
+SELECT  
+	D.codproducto as Cuenta 
+	,O.NOMINA as Nomina  
+	,O.NUMBENEF as Correlativo  
+	,D.NOMBRE as Paciente   
+	,TG.TIPOGASTO as TipoGasto  
+	,O.CVE_CIE as ClaveCIE  
+	,C.DIAGNOSTICO as Diagnostico  
+	,convert(varchar(11),o.f_ocurrido,120) as Fecha   
+	,case when (F.cve_prov) <> '0000099999' then  
+		SUM (O.IMPORTE)*1.09       
+ 	else SUM(O.IMPORTE) end as Importe  
+	,case when (F.cve_prov) <> '0000099999' then  
+		SUM (O.total)*1.09     
+ 	else SUM(O.total) end as Total   
+	,F.f_recepcion              
+FROM   
+	Operacion O  
+	INNER JOIN Facturas F On F.cve_prov = O.cve_prov And F.no_fac = O.no_fac  
+	INNER JOIN Recursos_Medicos R On R.cve_prov = O.cve_prov  
+	INNER JOIN Derhabs D On D.cve_empresa = O.cve_empresa And D.nomina = O.nomina And D.numbenef = O.numbenef  
+	INNER JOIN Empresas EMP on D.cve_empresa = EMP.cve_empresa  
+	INNER JOIN parentesco p on p.cve_parent = d.cve_parent  
+	INNER JOIN ESPECIALIDAD ESP ON ESP.CVE_ESPEC = R.CVE_ESPEC  
+	INNER JOIN TIPOGASTO TG ON TG.CODTIPOGASTO = ESP.CODTIPOGASTO  
+	INNER JOIN CIE10 C ON C.CVE_CIE = O.CVE_CIE  
+	LEFT JOIN empresasPyme py on py.codEmpresa = D.CodEmpresa AND py.codPyme = D.codPymeColectivo  
+WHERE  
+	O.IMPORTE >='0'  
+	and F.CODESTATUSFACTURA NOT IN ('CD','D')  
+//
+group by  
+	D.codproducto  
+	,O.NOMINA   
+	,O.NUMBENEF   
+	,D.NOMBRE     
+	,TG.TIPOGASTO   
+	,O.CVE_CIE   
+	,C.DIAGNOSTICO   
+	,o.f_ocurrido         
+	,F.cve_prov          
+	,F.f_recepcion                   
+order by  
+	o.f_ocurrido asc  

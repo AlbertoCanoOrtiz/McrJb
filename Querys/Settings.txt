@@ -1,0 +1,5 @@
+DRIVER={SQL Server};
+SERVER=casedbsql.cloudapp.net;
+DATABASE=ISS;
+UID=acano;
+PWD=Alberto.C4n0$%2016;

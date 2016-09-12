@@ -1,0 +1,66 @@
+USE 
+	MAEDICUSCPT 
+SELECT  
+	D.codproducto as Cuenta 
+	,D.codEmpresa as CodigoEmpresa  
+	,d.codPymeColectivo as CodigoPyme  
+	,py.nombreComercial as NombreComercial  
+	,O.NOMINA as Nomina  
+	,O.NUMBENEF as Correlativo  
+	,D.NOMBRE as Paciente  
+	,p.parentesco as Parentesco  
+	,F.CVE_PROV as Mac  
+	,R.RECURSOMEDICO as Proveedor  
+	,TG.TIPOGASTO as TipoGasto  
+	,ESP.ESPECIALIDAD as Especialidad  
+	,O.CVE_CIE as ClaveCIE  
+	,C.DIAGNOSTICO as Diagnostico  
+	,Edo.Estado
+	,year(o.f_ocurrido) as Año  
+	,month(o.f_ocurrido) as Mes  
+	,convert(varchar(11),o.f_ocurrido,120) as Fecha   
+	,case when (F.cve_prov) <> '0000099999' then  
+		SUM (O.IMPORTE)*1.09  
+ 	else SUM(O.IMPORTE) end as Importe  
+	,case when (F.cve_prov) <> '0000099999' then  
+		SUM (O.total)*1.09    
+ 	else SUM(O.total) end as Total   
+FROM   
+	Operacion O  
+	INNER JOIN Facturas F On F.cve_prov = O.cve_prov And F.no_fac = O.no_fac  
+	INNER JOIN Recursos_Medicos R On R.cve_prov = O.cve_prov  
+	INNER JOIN Derhabs D On D.cve_empresa = O.cve_empresa And D.nomina = O.nomina And D.numbenef = O.numbenef  
+	INNER JOIN Estado Edo On R.CodEstado = Edo.CodEstado and Edo.codTabulador = 1
+	INNER JOIN Empresas EMP on D.cve_empresa = EMP.cve_empresa  
+	INNER JOIN parentesco p on p.cve_parent = d.cve_parent  
+	INNER JOIN ESPECIALIDAD ESP ON ESP.CVE_ESPEC = R.CVE_ESPEC  
+	INNER JOIN TIPOGASTO TG ON TG.CODTIPOGASTO = ESP.CODTIPOGASTO  
+	INNER JOIN CIE10 C ON C.CVE_CIE = O.CVE_CIE  
+	LEFT JOIN empresasPyme py on py.codEmpresa = D.CodEmpresa AND py.codPyme = D.codPymeColectivo  
+WHERE  
+	O.IMPORTE >='0'  
+	and F.CODESTATUSFACTURA NOT IN ('CD','D')  
+	and D.codEmpresa in ('384')
+	and O.f_ocurrido between '2015/12/16' and GETDATE()
+group by  
+	D.codEmpresa  
+	,d.codPymeColectivo  
+	,py.nombreComercial  
+	,D.codproducto  
+	,O.NOMINA  
+	,O.NUMBENEF  
+	,D.NOMBRE  
+	,p.parentesco  
+	,F.CVE_PROV  
+	,R.RECURSOMEDICO  
+	,TG.TIPOGASTO  
+	,ESP.ESPECIALIDAD  
+	,O.CVE_CIE  
+	,C.DIAGNOSTICO
+	,Edo.Estado  
+	,year(o.f_ocurrido)  
+	,month(o.f_ocurrido)  
+	,o.f_ocurrido 
+	,o.f_ocurrido    
+order by  
+	o.f_ocurrido asc 

@@ -1,0 +1,36 @@
+use 
+	SAI
+select 
+	C.vchRazonSocial
+	,RRA.dtFecNoTrabIni
+	,RRA.dtFecFactura
+	,TP.iNumPoliza
+	,TP.iNumRenova 
+	,TA.vchNombre +' ' + TA.vchPaterno + ' ' + TA.vchMaterno
+	,CICD.vchDescripcion
+	,SUM((RRA.mTotalNeto - RRA.mIVA)) as Importe
+	,SUM(RRA.mIVA) as Iva
+	,SUM(RRA.mTotalNeto)
+from 
+	TranReclamo TR 
+	inner join RelReclamoAfiliado RRA on RRA.iCodReclamo = TR.iCodReclamo
+	inner join RelEstatusReclamo RER on RER.iCodReclamo =RRA.iCodReclamo and RER.iCodAfiliado = RRA.iCodAfiliado and RER.tiSecuencialAfi=RRA.tiSecuencialAfi
+	inner join TranAfiliado TA on TA.iCodAfiliado = RRA.iCodAfiliado
+	inner join CatICD9 CICD on CICD.iCodICD9 = RER.iCodICD9_1
+	inner join TranPoliza TP on TP.iCodPoliza  = RRA.iCodPoliza 
+	inner join Contratante C on C.iCodContratante = TP.iCodContratante
+	inner join RelPolizaSubGrupo RPS on RPS.iCodPoliza = TP.iCodPoliza
+	inner join Planes P on P.iCodPlan = RPS.iCodPlan
+where 
+	RRA.dtFecNoTrabIni between '2014/12/31' and GETDATE()
+	and TR.tiTipoReclamo <> 11
+	and TP.vchCodSubRamo in ('39')
+	and TP.iNumPoliza in ('813'	,'814'	,'815'	,'816'	,'817'	,'1057'	,'1058'	,'1059'	,'1060'	,'1061'	,'1399'	,'1400'	,'1401'	,'1402')
+group by 
+	C.vchRazonSocial
+	,RRA.dtFecNoTrabIni
+	,RRA.dtFecFactura
+	,TP.iNumPoliza
+	,TP.iNumRenova 
+	,TA.vchNombre +' ' + TA.vchPaterno + ' ' + TA.vchMaterno
+ 	,CICD.vchDescripcion

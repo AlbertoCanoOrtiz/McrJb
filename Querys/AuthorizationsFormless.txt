@@ -1,0 +1,38 @@
+use  
+	mediaccess  
+select  
+	EMP.nombrefiscal as Cuenta 
+	,PY.nombrefiscal as NombreFiscal  
+	,gc.codafiliado as Afiliado  
+	,a.nombres + ' ' + a.apellidopaterno + ' ' +a.apellidomaterno as Nombre   
+	,PR.PARENTESCO as Parentesco  
+	,gc.autorizacion as Autorizacion  
+	,convert(varchar(11),gc.fecha,120) as Fecha  
+	,tc.tipocuenta as TipoGasto
+	,ep.especialidad as Especialidad  
+	,GCD.coddiagnostico as ClaveDiagnostico  
+	,dia.diagnostico as Diagnostico  
+	,round( isnull(gcd.preciounitario,0)* (isnull(gcd.cantidad,0))*1.09,2) as Monto  
+	,round((CASE WHEN gcd.total < 0 THEN '0' 
+      	when gcd.total IS NULL  then '0'  
+        ELSE GCD.TOTAL END)*1.09,2) as Total       
+	,a.poliza as Poliza  
+
+from   
+	saMediaccess.GastoCoberturas gc  
+	inner join saMediaccess.gastocoberturasdetalle gcd on gc.idlista = gcd.idlista  
+	inner join iss..afiliado a on gc.codempresa = a.codempresa and gc.codafiliado collate Modern_Spanish_CI_AS = a.codafiliado and gc.correlativo = a.correlativo  
+	left join iss..ubicacionafiliado ua on a.codafiliado collate Modern_Spanish_CI_AS = ua.codafiliado and a.correlativo = ua.correlativo and a.codempresa = ua.codempresa  
+	left join iss..empresa emp on a.codempresa = emp.codempresa  
+	left join iss.saMediaccess.empresasPyme py on a.codpymecolectivo = py.codpyme and a.codempresa = py.codempresa  
+	left join diagnostico dia on GCD.coddiagnostico = dia.coddiagnostico  
+	left JOIN PARENTESCO PR ON PR.CODPARENTESCO = A.CODPARENTESCO  
+	left join tipocuenta tc on gcd.codtipocuenta = tc.codtipocuenta   
+	left join especialidad ep on gcd.codespecialidad = ep.codespecialidad and ep.codespecialidad <> '10000'  
+	left join iss..estado es on ua.codestado = es.codestado  
+	left join iss..poblacion p on ua.codestado = p.codestado and ua.codpoblacion = p.codpoblacion   
+where  
+//
+order by  
+	gc.fecha asc
+

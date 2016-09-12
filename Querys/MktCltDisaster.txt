@@ -1,0 +1,19 @@
+USE 
+	MAEDICUSCPT 
+SELECT  
+		SUM (O.IMPORTE)*1.09          
+FROM   
+	Operacion O  
+	INNER JOIN Facturas F On F.cve_prov = O.cve_prov And F.no_fac = O.no_fac  
+	INNER JOIN Recursos_Medicos R On R.cve_prov = O.cve_prov  
+	INNER JOIN Derhabs D On D.cve_empresa = O.cve_empresa And D.nomina = O.nomina And D.numbenef = O.numbenef  
+	INNER JOIN Empresas EMP on D.cve_empresa = EMP.cve_empresa  
+	INNER JOIN parentesco p on p.cve_parent = d.cve_parent  
+	INNER JOIN ESPECIALIDAD ESP ON ESP.CVE_ESPEC = R.CVE_ESPEC  
+	INNER JOIN TIPOGASTO TG ON TG.CODTIPOGASTO = ESP.CODTIPOGASTO  
+	INNER JOIN CIE10 C ON C.CVE_CIE = O.CVE_CIE  
+	LEFT JOIN empresasPyme py on py.codEmpresa = D.CodEmpresa AND py.codPyme = D.codPymeColectivo  
+WHERE  
+	O.IMPORTE >='0'  
+	and F.CODESTATUSFACTURA NOT IN ('CD','D') 
+//

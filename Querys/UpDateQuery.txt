@@ -1,0 +1,31 @@
+use 
+	iss 
+select  
+	a.CodEmpresa,  
+	a.CodAfiliado,  
+	a.Correlativo,  
+	a.Nombres,  
+	a.ApellidoPaterno,  
+	a.ApellidoMaterno,  
+	a.FechaNacimiento,  
+	a.Sexo,  
+	a.RFC,  
+	a.FechaInicioServicio,  
+	a.FechaFinServicio,  
+	a.FechaCargaMediaccess,  
+	a.CodParentesco,  
+	a.CodEStatusAfiliado,  
+	a.CodPeriodo,   
+	a.DiaSemanaCorte,  
+	a.DiaMesCorte,   
+	a.CodProducto,   
+	a.CodViaCarga,   
+	a.CodSeguro,   
+	a.codPymeColectivo    
+from  
+	ISS..afiliado a  
+where  
+	year(FechaCargaMediaccess) = year(GETDATE())   
+	and MONTH(FechaCargaMediaccess) = MONTH(GETDATE())   
+	and DAY(FechaCargaMediaccess) = day(GETDATE())   
+//

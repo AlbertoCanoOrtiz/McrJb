@@ -1,0 +1,66 @@
+USE 
+	MAEDICUSCPT 
+SELECT 
+	D.codproducto 
+	,D.codEmpresa 
+	,D.codPymeColectivo 
+	,Py.nombreComercial 
+	,O.NOMINA 
+	,O.NUMBENEF 
+	,D.NOMBRE 
+	,P.parentesco 
+	,F.CVE_PROV 
+	,Rm.RECURSOMEDICO 
+	,Tg.TIPOGASTO 
+	,Esp.ESPECIALIDAD 
+	,O.CVE_CIE 
+	,C.DIAGNOSTICO 
+	,year(o.f_ocurrido) 
+	,month(o.f_ocurrido) 
+	,O.f_ocurrido 
+	,case when (F.cve_prov) <> '0000099999' then 
+
+		SUM(O.IMPORTE)*1.09 
+ 	else 
+		SUM(O.IMPORTE) 
+ 	end 
+	,case when (F.cve_prov) <> '0000099999' then 
+
+		SUM (O.total)*1.09 
+ 	else 
+		SUM(O.total) 
+ 	end 
+FROM 
+	Operacion O 
+	Inner Join Facturas F on F.cve_prov = O.cve_prov and F.no_fac = O.no_fac 
+	Inner Join Recursos_Medicos Rm on Rm.cve_prov = O.cve_prov 
+	Inner Join Derhabs D On D.cve_empresa = O.cve_empresa and D.nomina = O.nomina and D.numbenef = O.numbenef 
+	Inner Join Empresas Emp on Emp.cve_empresa = D.cve_empresa 
+	Inner Join Parentesco P on P.cve_parent = D.cve_parent 
+	Inner Join ESPECIALIDAD Esp on Esp.CVE_ESPEC = Rm.CVE_ESPEC 
+	Inner Join TIPOGASTO Tg on Tg.CODTIPOGASTO = Esp.CODTIPOGASTO 
+	Inner Join CIE10 C on C.CVE_CIE = O.CVE_CIE 
+	Left Join empresasPyme Py on Py.codEmpresa = D.CodEmpresa and Py.codPyme = D.codPymeColectivo 
+WHERE 
+	O.IMPORTE >='0' 
+	and F.CODESTATUSFACTURA not in ('CD','D') 
+	and D.codempresa in (
+//
+group by 
+	D.codproducto 
+	,D.codEmpresa 
+	,D.codPymeColectivo 
+	,Py.nombreComercial 
+	,O.NOMINA 
+	,O.NUMBENEF 
+	,D.NOMBRE 
+	,P.parentesco 
+	,F.CVE_PROV 
+	,Rm.RECURSOMEDICO 
+	,Tg.TIPOGASTO 
+	,Esp.ESPECIALIDAD 
+	,O.CVE_CIE 
+	,C.DIAGNOSTICO 
+	,year(O.f_ocurrido) 
+	,month(O.f_ocurrido) 
+	,O.f_ocurrido 

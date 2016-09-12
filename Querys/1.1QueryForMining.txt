@@ -1,0 +1,38 @@
+USE 
+	ISS 
+SELECT 
+	rtrim(ltrim(a.codempresa)) as codempresa, 
+	rtrim(ltrim(e.nombreempresa)) as nombreempresa, 
+	rtrim(ltrim(a.codafiliado)) as codafiliado, 
+	rtrim(ltrim(a.ApellidoPaterno)) as apellidoPaterno, 
+	rtrim(ltrim(a.ApellidoMaterno)) as apellidoMaterno, 
+	rtrim(ltrim(a.Nombres)) as nombres, 
+	a.sexo, 
+	ea.estatusafiliado, 
+	par.parentesco, 
+	convert(varchar(11),a.fechanacimiento,120) as FechaNacimento,
+	rtrim(ltrim(DATEDIFF(YEAR,a.fechanacimiento,GETDATE()))) as Edad, 
+	convert(varchar(11),a.fechainicioservicio,120) as FechaInicio, 
+	convert(varchar(11),a.fechafinservicio,120) as FechaFin, 
+	convert(varchar(11),a.fechacargamediaccess,120) as FechaCarga, 
+	rtrim(ltrim(pr.producto)) as producto, 
+	es.estado, 
+	pl.poblacion, 
+	a.poliza, 
+	a.codPymeColectivo, 
+	ep.nombreFiscal Pyme 
+FROM 
+	iss..afiliado a 
+	left join planes p on a.codplan = p.codplan 
+	inner join ubicacionafiliado u on a.codempresa = u.codempresa and a.codafiliado = u.codafiliado and a.correlativo = u.correlativo 
+	inner join producto pr on a.codplan = pr.codplan and a.codproducto = pr.codproducto 
+	inner join  empresa e on a.codempresa = e.codempresa 
+	inner join EstatusAfiliado ea on a.codestatusafiliado = ea.codestatusafiliado 
+	left join estado es on u.codestado = es.codestado 
+	left join poblacion pl on u.codestado = pl.codestado and u.codpoblacion = pl.codpoblacion 
+	inner join parentesco par on a.codparentesco = par.codparentesco 
+	left join samediaccess.empresasPyme ep on a.codempresa = ep.codempresa and a.codpymecolectivo = ep.codPyme 
+wHERE 
+	a.codafiliado not in ('0') 
+//
+	

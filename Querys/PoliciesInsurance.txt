@@ -1,0 +1,17 @@
+use sai
+select distinct *
+from 
+	TranPoliza TP
+	inner join RelPolizaSubGrupo RPSG on RPSG.iCodPoliza = TP.iCodPoliza
+	inner join Planes P on P.iCodPlan = RPSG.icodplan
+	inner join Contratante C on C.iCodContratante = TP.iCodContratante
+	inner join CatFormaPago CFP on CFP.iCodFormaPago = TP.iCodFormaPago
+	inner join RelPolizaAgente RPA on RPA.iCodPoliza = TP.iCodPoliza
+	inner join Agente A on A.iCodAgente = RPA.iCodAgente
+where
+	TP.iNumEndoso = 0
+	and C.vchRazonSocial like '%%'
+	and TP.iNumPoliza = 1210
+	and TP.iNumRenova = 12
+	and TP.iNumEndoso = 0
+	and P.vchDescripcion like '%%' 

@@ -1,0 +1,41 @@
+USE 
+	mediaccess 
+SELECT DISTINCT 
+	cast(U.CodCuenta as varchar(40)) as CveProv, 
+	cast(E.Estado as varchar(40)) as Estado, 
+	cast(P.Poblacion as varchar(30)) as Ciudad, 
+	cast(TC.TipoCuenta as varchar (40)) as TipoCuenta, 
+	cast(ESP.especialidad as varchar(45)) as Especialidad, 
+	cast(C.nombre as varchar (100)) as NombreFiscal, 
+	ltrim(cast(case when (len(U.RESTONOMBRE) = 0 or U.RESTONOMBRE is null) then 
+		C.nombre  
+	else 
+		U.RESTONOMBRE end as varchar(100))) as  NombreComercial, 
+	ltrim(cast(isnull(U.Calle, '') + ' ' + isnull(U.RestoCalle, '') as varchar(60))) as Direccion, 
+	cast(U.Colonia as varchar(30)) as Colonia, 
+	cast(U.Lada as varchar (7)) as Lada, 
+	cast(U.Telefono1 as varchar (100)) as Telefono1, 
+	cast(U.Telefono2 as varchar (100)) as Telefono2, 
+	cast(U.HorarioAtencion as varchar(85)) as Horarioatencion,    
+	cast(U.Email1 as varchar(300))as Email,   
+	cast(U.Email2 as varchar(300))as Email  
+FROM    
+	Cuenta C 
+	inner join Ubicacion U ON C.CodCuenta = U.CodCuenta 
+	inner join Poblacion P ON U.CodEstado = P.CodEstado AND U.CodPoblacion = P.CodPoblacion 
+	inner join TipoCuenta TC ON U.CodTipoCuenta = TC.CodTipoCuenta 
+	inner join TipoPersona TP on C.CodTipoPersona = TP.CodTipoPersona 
+	inner join red_cuenta RC on C.codcuenta = RC.codcuenta 
+	inner join Red R on RC.codred = R.codred 
+	left join Banco B on C.codBanco = B.codbanco 
+	left join Estado E ON P.CodEstado = E.CodEstado 
+	left join Especialidad ESP on ESP.codespecialidad = U.codespecialidad 
+	left join TipoUbicacion TU on TU.CodTipoUbicacion = U.CodTipoUbicacion 
+WHERE 
+	C.CodEstatuscuenta ='A' 
+	and U.CodEstatusUbicacion ='A' 
+	and U.CodTipoUbicacion not in ('fi','PT') 
+	and left(C.nombrecompleto,3) not in ('umi') 
+	and U.codtipocuenta not in ('1') 
+	and U.codespecialidad not in ('10005') 
+	and R.codred in (

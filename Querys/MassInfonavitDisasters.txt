@@ -1,0 +1,45 @@
+use 
+	SAI
+select 
+	C.vchRazonSocial
+	, case 
+		when P.vchCodPlan  like 'MASS-INFONAVITGMMJ14' or P.vchCodPlan like 'MASS-INFONAVITGMM-14' then
+			'GASTOS MÉDICOS MAYORES'
+		when P.vchCodPlan like 'HCNM-INTCOL-VOL13' or P.vchCodPlan like 'MASS-INFONAVIT-14' or P.vchCodPlan like 'MMASSINFONAVITGMMJ14' or P.vchCodPlan like 'MMASS-INFONAVITGMM14' or P.vchCodPlan like 'MASS-INFONAVITGMM-15' or P.vchCodPlan like 'MASS-INFONAVIT-15' or P.vchCodPlan like 'MASS-INFONAVITGMM1-1' or P.vchCodPlan like 'MASS-INFONAVIT1-15' or P.vchCodPlan like 'MASS-INFONAVIT-S15' or P.vchCodPlan like 'MASS-INFONAVIT-S15-2' then
+			'GASTOS MÉDICOS MENORES'
+	  end
+	,RRA.dtFecFactura
+	,RRA.dtFecNoTrabIni
+	,TA.vchPaterno + ' '+ TA.vchMaterno + ' '+ TA.vchNombre
+	,DATEDIFF(year,TA.dtFecNacimiento,GETDATE())
+	,CICD.vchDescripcion
+	,SUM(RRA.mTotalNeto - RRA.mIVA) as Importe
+	,SUM(RRA.mIVA) as Iva
+	,SUM(RRA.mTotalNeto)
+from 
+	TranReclamo TR 
+	inner join RelReclamoAfiliado RRA on RRA.iCodReclamo = TR.iCodReclamo
+	inner join RelEstatusReclamo RER on RER.iCodReclamo =RRA.iCodReclamo and RER.iCodAfiliado = RRA.iCodAfiliado and RER.tiSecuencialAfi=RRA.tiSecuencialAfi
+	inner join TranAfiliado TA on TA.iCodAfiliado = RRA.iCodAfiliado
+	inner join CatICD9 CICD on CICD.iCodICD9 = RER.iCodICD9_1
+	inner join TranPoliza TP on TP.iCodPoliza  = RRA.iCodPoliza 
+	inner join Contratante C on C.iCodContratante = TP.iCodContratante
+	inner join RelPolizaSubGrupo RPS on RPS.iCodPoliza = TP.iCodPoliza
+	inner join Planes P on P.iCodPlan = RPS.iCodPlan
+where 
+	RRA.dtFecNoTrabIni between '2012/01/01' and '2016/06/30'
+	and TR.tiTipoReclamo <> 11
+	and TP.iNumPoliza in ('1134'	,'40'	,'1167'	,'1000042'	,'41'	,'1166'	,'1000041'	,'42'	,'43'	,'1000040'	,'1000043'	,'1309')
+group by 
+	C.vchRazonSocial
+	, case 
+		when P.vchCodPlan  like 'MASS-INFONAVITGMMJ14' or P.vchCodPlan like 'MASS-INFONAVITGMM-14' then
+			'GASTOS MÉDICOS MAYORES'
+		when P.vchCodPlan like 'HCNM-INTCOL-VOL13' or P.vchCodPlan like 'MASS-INFONAVIT-14' or P.vchCodPlan like 'MMASSINFONAVITGMMJ14' or P.vchCodPlan like 'MMASS-INFONAVITGMM14' or P.vchCodPlan like 'MASS-INFONAVITGMM-15' or P.vchCodPlan like 'MASS-INFONAVIT-15' or P.vchCodPlan like 'MASS-INFONAVITGMM1-1' or P.vchCodPlan like 'MASS-INFONAVIT1-15' or P.vchCodPlan like 'MASS-INFONAVIT-S15' or P.vchCodPlan like 'MASS-INFONAVIT-S15-2' then
+			'GASTOS MÉDICOS MENORES'
+	  end
+	,TA.vchPaterno + ' '+ TA.vchMaterno + ' '+ TA.vchNombre
+	,RRA.dtFecFactura
+	,RRA.dtFecNoTrabIni
+	,TA.dtFecNacimiento
+	,CICD.vchDescripcion

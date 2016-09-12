@@ -1,0 +1,5 @@
+DRIVER={SQL Server};
+SERVER=192.168.3.127;
+DATABASE=MAEDICUSCPT;
+UID=estadistica;
+PWD=Estad1stic4%&2016;
